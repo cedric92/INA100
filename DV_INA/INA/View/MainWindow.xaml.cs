@@ -132,6 +132,7 @@ namespace INA
         }
 
 
+        //to delete?
         private void btDelete_Click(object sender, RoutedEventArgs e)
         {
             if (filesView.SelectedItem != null)
@@ -181,6 +182,11 @@ namespace INA
 
             // mvvm
             _ViewModel.clearFilePath(index);
+
+            if (filesView.Items.Count == 0)
+            {
+                btStart.IsEnabled = false;
+            }
         }
 
         private void menu_opencompmgmnt_Click(object sender, RoutedEventArgs e)
@@ -221,9 +227,7 @@ namespace INA
 
             if (dbSucces)
             {
-                message = "DB connection successfull";
-                
-               
+                message = "DB connection successfull";             
             }
             else
             {
