@@ -141,7 +141,7 @@ namespace INA.Model
         }
         private bool evaluateMessage(string[] record)
         {
-            SqlTransaction trans;
+            SqlTransaction trans = null;
             SqlConnection _sqlconnection = new SqlConnection(conString);
 
             // connect to database
@@ -160,22 +160,28 @@ namespace INA.Model
                     command.CommandText = "INSERT INTO AccMgmt (Account, Amount, Fileid) VALUES (" + record[1] + "," + record[2] + ", '" + record[0] + "' )";
                     command.ExecuteNonQuery();
 
-                    trans.Commit();
+                    //trans.Commit();
 
                     //everything ok: return true
                     return true;
+
                 }
                 catch (SqlException sqle)
                 {
+                    trans.Rollback();
                     Console.WriteLine(sqle.Message);
                     return false;
                 }
                 catch (Exception e)
                 {
+                    trans.Rollback();
                     Console.WriteLine(e.Message);
                     return false;
                 }
+
+
         }
+
 
         public bool testDBConnection()
         {

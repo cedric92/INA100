@@ -7,6 +7,7 @@ using System.Messaging;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.IO;
+using System.Data.SqlClient;
 
 namespace INA.Model
 {
@@ -50,28 +51,30 @@ namespace INA.Model
         private void process()
         {
             // Create a transaction.
-            MessageQueueTransaction trans = new MessageQueueTransaction();
+            MessageQueueTransaction queueTrans = new MessageQueueTransaction();
+            SqlTransaction sqlTrans = new SqlTransaction();
 
             try
             {
                 // Begin the transaction.
-                trans.Begin();
+                queueTrans.Begin();
 
                 // Receive the message from msmq
                 //
-                Message msg = queue.Receive(trans);
+                Message msg = queue.Receive(queueTrans);
                 String value = (String)msg.Body;
 
                 // Display message information.
                 if (_databasemanagement.evaluateMessageLine(value))
                 {
                     // Commit the transaction.
-                    trans.Commit();
+
+                    queueTrans.Commit();
                 }
                 else
                 {
                     // Abort the transaction.
-                    trans.Abort();
+                    queueTrans.Abort();
                 }
             }
 
@@ -85,7 +88,7 @@ namespace INA.Model
                 }
 
                 // Roll back the transaction.
-                trans.Abort();
+                queueTrans.Abort();
             }
             // rekursiv
             process();
