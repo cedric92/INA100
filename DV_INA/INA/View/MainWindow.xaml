@@ -1,0 +1,77 @@
+﻿<Window
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ViewModel="clr-namespace:INA.ViewModel" x:Name="INAMainWindow" x:Class="INA.MainWindow"
+        Title="INA" Height="464" Width="500" Icon="/INA;component/images/db.ico" ResizeMode="NoResize" Background="#FFE9EAF0" WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+
+    </Window.Resources>
+    <Grid x:Name="controlContainer" RenderTransformOrigin="0.624,0.627">
+        <Grid x:Name="btGrid" HorizontalAlignment="Left" Height="31" Margin="-11,370,0,0" VerticalAlignment="Top" Width="500">
+            <Button x:Name="btStart" Content="Starten" HorizontalAlignment="Left" VerticalAlignment="Top" Width="90" Height="30" Click="Button_ClickStart" Margin="51,0,0,0" IsEnabled="False"/>
+            <Button x:Name="btBeenden" Content="Beenden" Margin="360,0,0,0" VerticalAlignment="Top" Height="30" Click="btBeenden_Click" HorizontalAlignment="Left" Width="90"/>
+        </Grid>
+
+        <ListView x:Name="filesView" HorizontalAlignment="Left" Height="128" Margin="40,88,0,0" VerticalAlignment="Top" Width="400" ItemsSource="{Binding _loadedFiles}" SelectionMode="Single" SelectionChanged="filesView_SelectionChanged">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="240" Header="Dateiname" />
+                    <GridViewColumn Width="auto">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Width="20" Height="20" Click="DeleteFile">
+                                    <DockPanel>
+                                        <Image Source="/INA;component/images/delete.png"/>
+                                    </DockPanel>
+                                </Button>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+
+
+
+
+        <ProgressBar x:Name="progBar" HorizontalAlignment="Left" Height="27" Margin="40,221,0,0" VerticalAlignment="Top" Width="400" Value="{Binding ProgressStatus}"  Minimum="0" Maximum="100" Foreground="#FF689BE6" ValueChanged="progBar_ValueChanged" />
+        <TextBox x:Name="tbInfo3" HorizontalAlignment="Left" Height="112" Margin="40,253,0,0" TextWrapping="Wrap" Text="{Binding _tbInfo}" VerticalAlignment="Top" Width="400" ScrollViewer.VerticalScrollBarVisibility="Visible" Focusable="False"  />
+
+
+
+        <Menu IsMainMenu="True" HorizontalAlignment="Left" Height="31" Margin="-1,0,0,0" VerticalAlignment="Top" Width="493" Grid.ColumnSpan="3">
+            <MenuItem Header="_Datei">
+                <MenuItem Header="_Datei hinzufügen" Click="MenuItem_Click_1">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="/INA;component/images/add.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <Separator />
+                <MenuItem Header="_Beenden" Click="MenuItem_Click">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="/INA;component/images/exit.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+            <MenuItem Header="_Verwaltung" Click="MenuItem_Click_2">
+                <MenuItem x:Name="menu_opencompmgmnt" Header="_Computerverwaltung öffnen" Click="menu_opencompmgmnt_Click">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="/INA;component/images/queue.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+                <MenuItem x:Name="menu_clearMSMQ" Header="_MessageQueue leeren" Click="menu_clearMSMQ_Click">
+                    <MenuItem.Icon>
+                        <Image Width="16" Height="16" Source="/INA;component/images/deletequeue.png" />
+                    </MenuItem.Icon>
+                </MenuItem>
+            </MenuItem>
+        </Menu>
+        <Label Content="INA" HorizontalAlignment="Left" Margin="33,36,0,0" VerticalAlignment="Top" Width="85" Foreground="#1a1d9e" FontFamily="Imprint MT Shadow" FontSize="36"/>
+
+
+
+
+
+    </Grid>
+</Window>
