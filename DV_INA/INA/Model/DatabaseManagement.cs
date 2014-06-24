@@ -15,8 +15,8 @@ namespace INA.Model
         LogFile _LogFile;
         ProgressBarControl _ProgressBarControl;
 
-       // string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True; Connect Timeout=1;";
-        string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
+       string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True; Connect Timeout=1;";
+        //string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
         // string conString = @"Server=WINJ5GTVAPSLQX\SQLEXPRESS;Database=INA;Trusted_Connection=True;";
 
         #endregion
@@ -98,7 +98,6 @@ namespace INA.Model
                     _sqlconnection2.Open();
                     trans = _sqlconnection2.BeginTransaction();
 
-
                     SqlCommand command = _sqlconnection2.CreateCommand();
                     command.Connection = _sqlconnection2;
                     command.Transaction = trans;
@@ -160,7 +159,7 @@ namespace INA.Model
                     command.CommandText = "INSERT INTO AccMgmt (Account, Amount, Fileid) VALUES (" + record[1] + "," + record[2] + ", '" + record[0] + "' )";
                     command.ExecuteNonQuery();
 
-                    //trans.Commit();
+                    trans.Commit();
 
                     //everything ok: return true
                     return true;
@@ -178,8 +177,6 @@ namespace INA.Model
                     Console.WriteLine(e.Message);
                     return false;
                 }
-
-
         }
 
 

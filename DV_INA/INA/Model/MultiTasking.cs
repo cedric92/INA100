@@ -52,8 +52,7 @@ namespace INA.Model
         {
             // Create a transaction.
             MessageQueueTransaction queueTrans = new MessageQueueTransaction();
-            SqlTransaction sqlTrans = new SqlTransaction();
-
+          
             try
             {
                 // Begin the transaction.
@@ -68,7 +67,6 @@ namespace INA.Model
                 if (_databasemanagement.evaluateMessageLine(value))
                 {
                     // Commit the transaction.
-
                     queueTrans.Commit();
                 }
                 else
