@@ -28,10 +28,8 @@ namespace DBConnection
             input.Text = conStr;
             show.Text = conStr;
         }
-
         private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            
+        {           
             conStr = input.Text;
 
             show.Text = conStr;
@@ -46,10 +44,7 @@ namespace DBConnection
             {
 
                 MessageBox.Show("Connection String nicht erfolgreich");
-            }
-
-            
-           
+            }          
         }
     }
 }
