@@ -118,7 +118,7 @@ namespace INA.Model
                     _Logfile.writeToFile("### File "+fileName+" successfully imported ###\n");
 
 
-                    _ProgressBarControl.setProgressStatus(1);
+                    _ProgressBarControl.setProgressStatus(numberOfFiles);
                     count = 0;
                 }
 

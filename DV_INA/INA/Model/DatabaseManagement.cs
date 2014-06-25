@@ -15,8 +15,8 @@ namespace INA.Model
         LogFile _LogFile;
         ProgressBarControl _ProgressBarControl;
 
-       string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True; Connect Timeout=1;";
-        //string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
+       //string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True; Connect Timeout=1;";
+        string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
         // string conString = @"Server=WINJ5GTVAPSLQX\SQLEXPRESS;Database=INA;Trusted_Connection=True;";
 
         #endregion
@@ -55,7 +55,7 @@ namespace INA.Model
         }
 
         //evaluate each message
-        //header => back to queue
+        //header => back to queue//do nothing
         //footer => check if all message are in database, otherwise send it back to queue
         //message => write to database
         public bool evaluateMessageLine(string value)
@@ -87,6 +87,8 @@ namespace INA.Model
 
         }
 
+        //returns true if the given array has been successfully inserted into the db
+        //otherwise it returns false
         private bool evaluateFooter(string[] record)
         {
             SqlTransaction trans;
@@ -94,25 +96,29 @@ namespace INA.Model
                 try
                 {
                     // open connection
-                    SqlConnection _sqlconnection2 = new SqlConnection(conString);
-                    _sqlconnection2.Open();
-                    trans = _sqlconnection2.BeginTransaction();
+                    SqlConnection footerConnection = new SqlConnection(conString);
+                    footerConnection.Open();
 
-                    SqlCommand command = _sqlconnection2.CreateCommand();
-                    command.Connection = _sqlconnection2;
+                    //add transaction to connection for 2phase commit
+                    trans = footerConnection.BeginTransaction();
+
+                    //define command 
+                    SqlCommand command = footerConnection.CreateCommand();
+                    command.Connection = footerConnection;
+
+                    //add transaction to command for 2phase commit
                     command.Transaction = trans;
 
                     // begin transaction
 
-                    // command.CommandText = "SELECT * FROM AccMgmt WHERE Fileid= '" + record[0]+"'";
+                    //define query: check how many messages has already been inserted into the db with the specific file id (which is unique)
                     command.CommandText = "select count(*) from AccMgmt where Fileid = '" + record[0] + "'";
-                    // int i = command.ExecuteNonQuery();
-
+       
                     int i = (int)command.ExecuteScalar();
 
                     trans.Commit();
 
-                    // alles da?
+                    // compare the number of already inserted messages to the total numbers of inserts that must be done (= file number in footer)
                     if (i != Convert.ToInt32(record[2]))
                     {
 
@@ -121,6 +127,7 @@ namespace INA.Model
                     else
                     {
                         //everything worked => return true
+                        //all messages in database
                         this._LogFile.writeToFile("Complete file " + record[0] + " with " + record[2] + " messages successfully inserted!\n");
                         this._LogFile.reportCompleted();
                         return true;
