@@ -86,9 +86,6 @@ namespace INA.Model
             return success;
 
         }
-
-        //returns true if the given array has been successfully inserted into the db
-        //otherwise it returns false
         private bool evaluateFooter(string[] record)
         {
             SqlTransaction trans;
@@ -145,24 +142,30 @@ namespace INA.Model
                 }
             
         }
+
+        //returns true if the given array has been successfully inserted into the db
+        //otherwise it returns false
         private bool evaluateMessage(string[] record)
         {
             SqlTransaction trans = null;
-            SqlConnection _sqlconnection = new SqlConnection(conString);
+            SqlConnection messageConnection = new SqlConnection(conString);
 
             // connect to database
                 try
                 {
                     // open connection
-                    _sqlconnection.Open();
-                    trans = _sqlconnection.BeginTransaction();
+                    messageConnection.Open();
 
-                    SqlCommand command = _sqlconnection.CreateCommand();
-                    command.Connection = _sqlconnection;
+                    //add transaction to connection for 2phase commit
+                    trans = messageConnection.BeginTransaction();
+
+                    SqlCommand command = messageConnection.CreateCommand();
+                    command.Connection = messageConnection;
+
+                    //add transaction to command for 2phase commit
                     command.Transaction = trans;
 
                     // begin transaction
-
                     command.CommandText = "INSERT INTO AccMgmt (Account, Amount, Fileid) VALUES (" + record[1] + "," + record[2] + ", '" + record[0] + "' )";
                     command.ExecuteNonQuery();
 
@@ -185,8 +188,8 @@ namespace INA.Model
                     return false;
                 }
         }
-
-
+        
+        //test if the current connection string is valid
         public bool testDBConnection()
         {
             SqlConnection con = new SqlConnection(conString);

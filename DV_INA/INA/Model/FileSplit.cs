@@ -91,8 +91,7 @@ namespace INA.Model
                                 {
                                     foreach (var tline in transactionBlock)
                                     {
-                                        _Logfile.writeToFile("ERROR: " + fileName + ", "
-                                            + tline.ToString() + Environment.NewLine);
+                                        _Logfile.writeToFile("ERROR: " + fileName + ", " + tline.ToString() + Environment.NewLine);
                                     }
                                     transactionBlock.Clear();
                                 }
@@ -114,10 +113,9 @@ namespace INA.Model
                     // send footer to queue, add count
                     startMessageQueue((new KeyValuePair<string, string>(fileName, "Footer " + count)).ToString());
 
-
                     _Logfile.writeToFile("### File "+fileName+" successfully imported ###\n");
 
-
+                    //initiate the number of steps which will be shown in the progressbar
                     _ProgressBarControl.setProgressStatus(numberOfFiles);
                     count = 0;
                 }
