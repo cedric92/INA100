@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.IO;
 using System.Data.SqlClient;
+using System.Runtime.ExceptionServices;
 
 namespace INA.Model
 {
@@ -35,14 +36,17 @@ namespace INA.Model
             // set the formatter to indicate body contains a string
             queue.Formatter = new XmlMessageFormatter(new Type[] { typeof(String) });
 
+            //Task.Run(() => process());
+            
             Task.Factory.StartNew(() =>
                 //enumerable range + max degree of parallelism => define how many threads will be created
-                 Parallel.ForEach(Enumerable.Range(0, 10), new ParallelOptions { MaxDegreeOfParallelism = 4 }, (i) =>
+                 Parallel.ForEach(Enumerable.Range(0, 10), new ParallelOptions { MaxDegreeOfParallelism = 12 }, (i) =>
            {
                // Restart the synchronous receive operation
                process();
            })
                 );
+         
 
         }
 
@@ -63,10 +67,13 @@ namespace INA.Model
                 Message msg = queue.Receive(queueTrans);
                 String value = (String)msg.Body;
 
+
                 // Display message information.
-                if (_databasemanagement.evaluateMessageLine(value))
+               if (_databasemanagement.evaluateMessageLine(value))
+               // if (true)
                 {
                     // Commit the transaction.
+                    //Console.WriteLine(value);
                     queueTrans.Commit();
                 }
                 else

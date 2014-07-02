@@ -49,9 +49,9 @@ namespace INA
             //call method splitFile which splits the chosen file according to the fileNam
             _ViewModel.splitFiles();
             // start tasks reading from msmq
-            _ViewModel.startTasks();
+           _ViewModel.startTasks();
             // start timer
-            _ViewModel.startTimer();
+           _ViewModel.startTimer();
 
             // de/activate buttons
             btStart.IsEnabled = false;

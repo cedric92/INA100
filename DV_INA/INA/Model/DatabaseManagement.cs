@@ -15,8 +15,8 @@ namespace INA.Model
         LogFile _LogFile;
         ProgressBarControl _ProgressBarControl;
 
-       //string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True; Connect Timeout=1;";
-        string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
+        string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True;Max Pool Size=200;Connect Timeout=1";
+       // string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
         // string conString = @"Server=WINJ5GTVAPSLQX\SQLEXPRESS;Database=INA;Trusted_Connection=True;";
 
         #endregion
@@ -92,42 +92,50 @@ namespace INA.Model
             // connect to database
                 try
                 {
-                    // open connection
-                    SqlConnection footerConnection = new SqlConnection(conString);
-                    footerConnection.Open();
-
-                    //add transaction to connection for 2phase commit
-                    trans = footerConnection.BeginTransaction();
-
-                    //define command 
-                    SqlCommand command = footerConnection.CreateCommand();
-                    command.Connection = footerConnection;
-
-                    //add transaction to command for 2phase commit
-                    command.Transaction = trans;
-
-                    // begin transaction
-
-                    //define query: check how many messages has already been inserted into the db with the specific file id (which is unique)
-                    command.CommandText = "select count(*) from AccMgmt where Fileid = '" + record[0] + "'";
-       
-                    int i = (int)command.ExecuteScalar();
-
-                    trans.Commit();
-
-                    // compare the number of already inserted messages to the total numbers of inserts that must be done (= file number in footer)
-                    if (i != Convert.ToInt32(record[2]))
+                    using (SqlConnection footerConnection = new SqlConnection(conString))
                     {
+                        footerConnection.Open();
 
-                        return false;
-                    }
-                    else
-                    {
-                        //everything worked => return true
-                        //all messages in database
-                        this._LogFile.writeToFile("Complete file " + record[0] + " with " + record[2] + " messages successfully inserted!\n");
-                        this._LogFile.reportCompleted();
-                        return true;
+
+                        // open connection
+                        // SqlConnection footerConnection = new SqlConnection(conString);
+                        // footerConnection.OpenAsync();
+
+                        //add transaction to connection for 2phase commit
+                        trans = footerConnection.BeginTransaction();
+
+                        //define command 
+                        SqlCommand command = footerConnection.CreateCommand();
+                        command.Connection = footerConnection;
+
+                        //add transaction to command for 2phase commit
+                        command.Transaction = trans;
+
+                        // begin transaction
+
+                        //define query: check how many messages has already been inserted into the db with the specific file id (which is unique)
+                        command.CommandText = "select count(*) from AccMgmt where Fileid = '" + record[0] + "'";
+
+                        int i = (int)command.ExecuteScalar();
+
+                        trans.Commit();
+
+                        //  footerConnection.Close();
+
+                        // compare the number of already inserted messages to the total numbers of inserts that must be done (= file number in footer)
+                        if (i != Convert.ToInt32(record[2]))
+                        {
+
+                            return false;
+                        }
+                        else
+                        {
+                            //everything worked => return true
+                            //all messages in database
+                            this._LogFile.writeToFile("Complete file " + record[0] + " with " + record[2] + " messages successfully inserted!\n");
+                            this._LogFile.reportCompleted();
+                            return true;
+                        }
                     }
                 }
                 catch (SqlException se)
@@ -148,42 +156,76 @@ namespace INA.Model
         private bool evaluateMessage(string[] record)
         {
             SqlTransaction trans = null;
-            SqlConnection messageConnection = new SqlConnection(conString);
+           // SqlConnection messageConnection = new SqlConnection(conString);
+           SqlCommand command = null;
 
             // connect to database
                 try
                 {
-                    // open connection
-                    messageConnection.Open();
+                    using (SqlConnection messageConnection = new SqlConnection(conString))
+                    {
+                        if (messageConnection.State == 0)
+                            messageConnection.Open();
+                     
+                        /*
+                        var connectionTask = messageConnection.OpenAsync();
+                        // other code goes here
+                        Task.WaitAll(connectionTask); //make sure the task is completed
+                        if (connectionTask.IsFaulted) // in case of failure
+                        {
+                            throw new Exception("Connection failure", connectionTask.Exception);
+                        }
+                        // rest of the code
+                        */
 
-                    //add transaction to connection for 2phase commit
-                    trans = messageConnection.BeginTransaction();
+                        // open connection
+                        // messageConnection.OpenAsync();
 
-                    SqlCommand command = messageConnection.CreateCommand();
-                    command.Connection = messageConnection;
+                        //add transaction to connection for 2phase commit
+                        trans = messageConnection.BeginTransaction();
 
-                    //add transaction to command for 2phase commit
-                    command.Transaction = trans;
+                        command = messageConnection.CreateCommand();
+                        command.Connection = messageConnection;
 
-                    // begin transaction
-                    command.CommandText = "INSERT INTO AccMgmt (Account, Amount, Fileid) VALUES (" + record[1] + "," + record[2] + ", '" + record[0] + "' )";
-                    command.ExecuteNonQuery();
+                        //add transaction to command for 2phase commit
+                        command.Transaction = trans;
 
-                    trans.Commit();
+                        // begin transaction
+                        command.CommandText = "INSERT INTO AccMgmt (Account, Amount, Fileid) VALUES (" + record[1] + "," + record[2] + ", '" + record[0] + "' )";
+                        command.ExecuteNonQuery();
 
-                    //everything ok: return true
-                    return true;
+                        trans.Commit();
 
+                      // messageConnection.Close();
+                     
+
+                        //everything ok: return true
+                        return true;
+                    }
                 }
                 catch (SqlException sqle)
                 {
+                    string test = "";
+
+                    foreach (var item in record)
+                    {
+                        test += " " + item;
+                    }
+                    Console.WriteLine(test);
                     trans.Rollback();
                     Console.WriteLine(sqle.Message);
                     return false;
                 }
                 catch (Exception e)
                 {
-                    trans.Rollback();
+                    string test = "";
+
+                    foreach (var item in record)
+                    {
+                        test += " " + item;
+                    }
+                    Console.WriteLine(test);
+                   // trans.Rollback();
                     Console.WriteLine(e.Message);
                     return false;
                 }

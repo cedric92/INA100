@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using System.Diagnostics;
 
 namespace INA.Model
 {
@@ -51,39 +52,44 @@ namespace INA.Model
             Task.Factory.StartNew(() =>
             Parallel.ForEach<string>(loadedFilePaths, path => readFile(path))
             );
+
         }
 
         // import and check files
         public void readFile(string filePath)
         {
-            string fileName = Path.GetFileNameWithoutExtension(filePath);
-            _Logfile.writeToFile("###Started to import file " + fileName+"###\n");
+            List<string> list = new List<string>();
 
+            string fileName = Path.GetFileNameWithoutExtension(filePath);
+            _Logfile.writeToFile("### Started to import file " + fileName+"###\n");
+            
             try
             {
-                using (StreamReader sr = new StreamReader(filePath))
-                {
-                    string line = "";
+                int count = 0;
 
-                    //count lines
-                    int count = 0;
+                 // Create new stopwatch   
+                Stopwatch stopwatch = new Stopwatch();
+
+                // Begin timing
+                stopwatch.Start();
+
+                using (var fileStream = File.OpenText(filePath))
+                {
+                    list.Add((new KeyValuePair<string, string>(fileName, "Header")).ToString());
 
                     // save whole transactions, KeyValuePair simplifies access to key and value (acc-no + sum)
                     List<KeyValuePair<string, string>> transactionBlock = new List<KeyValuePair<string, string>>();
 
-                    // send header to queue
-                    startMessageQueue((new KeyValuePair<string, string>(fileName, "Header")).ToString());
-
-                    // read file
-                    while ((line = sr.ReadLine()) != null)
+                    do
                     {
+                        var line = fileStream.ReadLine();
                         if (!line.Contains('#'))
                         {
-                            // add line to transactionBlock
                             transactionBlock.Add((new KeyValuePair<string, string>(fileName, line)));
                         }
                         else
                         {
+
                             if (transactionBlock.Count > 0)
                             {
                                 // check transactionBlock
@@ -100,24 +106,27 @@ namespace INA.Model
                                     foreach (var t in transactionBlock)
                                     {
                                         count++;
-                                        // send string to queue
-                                        startMessageQueue(t.ToString());
+                                        // send string to lst
+                                        list.Add(t.ToString());
                                     }
                                     // clear transactionBlock
                                     transactionBlock.Clear();
                                 }
                             }
+
                         }
-                    }
 
-                    // send footer to queue, add count
-                    startMessageQueue((new KeyValuePair<string, string>(fileName, "Footer " + count)).ToString());
+                    } while (!fileStream.EndOfStream);
 
-                    _Logfile.writeToFile("### File "+fileName+" successfully imported ###\n");
+                    list.Add((new KeyValuePair<string, string>(fileName, "Footer " + count)).ToString());
 
-                    //initiate the number of steps which will be shown in the progressbar
-                    _ProgressBarControl.setProgressStatus(numberOfFiles);
-                    count = 0;
+                    SendStringMessageToQueueListe(list);
+
+                 // Stop timing
+                 stopwatch.Stop();
+
+                    // Write result
+                  _Logfile.writeToFile("Time elapsed: " + stopwatch.Elapsed);
                 }
 
             }
@@ -128,6 +137,8 @@ namespace INA.Model
             {
                 Console.WriteLine(e.Message);
             }
+
+    
         }
 
         //check if the entries in the list are valid. 

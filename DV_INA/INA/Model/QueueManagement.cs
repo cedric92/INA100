@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Messaging;
 using System.Windows;
+using System.IO;
+using System.Diagnostics;
 
 namespace INA.Model
 {
@@ -14,7 +16,7 @@ namespace INA.Model
     class QueueManagement
     {
     #region Members
-
+   
     #endregion
 
     #region Methods
@@ -34,7 +36,7 @@ namespace INA.Model
         protected static MessageQueue GetStringMessageQueue()
         {
             MessageQueue msgQueue = null;
-            string queueName = @".\private$\INAqueue";
+            string queueName = @".\private$\INAqueueT";
 
             if (!MessageQueue.Exists(queueName))
             {
@@ -51,6 +53,47 @@ namespace INA.Model
         // send messages to queue
         protected static void SendStringMessageToQueue(string transactions)
         {
+            MessageQueue msgQueue = GetStringMessageQueue();
+
+            using (var msmqTx = new MessageQueueTransaction())
+            {
+
+
+                msmqTx.Begin();
+
+
+                msgQueue.Send(new Message(transactions)
+
+                {
+
+                    //BodyStream = new MemoryStream(bytes)
+
+                }, msmqTx);
+
+
+                msmqTx.Commit();
+
+            }
+        }
+
+        protected static void SendStringMessageToQueueListe(List<string> transactions)
+        {
+            // List<int> list = new List<int>();
+            MessageQueue msgQueue = GetStringMessageQueue();
+
+            using (var msmqTx = new MessageQueueTransaction())
+            {
+                msmqTx.Begin();
+
+                foreach (var item in transactions)
+                {
+                    msgQueue.Send(item, msmqTx);
+                }
+            
+                msmqTx.Commit();
+
+            }
+            /*
             MessageQueue msgQueue = GetStringMessageQueue();
 
             // serialize the message while sending
@@ -73,6 +116,8 @@ namespace INA.Model
                // Commit the transaction.
                myTransaction.Commit();
            }
+             * 
+             * */
         }
 
         public void clearMSMQ()
