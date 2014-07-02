@@ -18,7 +18,7 @@ namespace INA.Model
     {
         #region Member
         DatabaseManagement _databasemanagement;
-
+        Model _Model;
         MessageQueue queue = GetStringMessageQueue();
         LogFile _Logfile;
         #endregion
@@ -37,16 +37,27 @@ namespace INA.Model
             queue.Formatter = new XmlMessageFormatter(new Type[] { typeof(String) });
 
             //Task.Run(() => process());
-            
+
+            /*
             Task.Factory.StartNew(() =>
                 //enumerable range + max degree of parallelism => define how many threads will be created
-                 Parallel.ForEach(Enumerable.Range(0, 10), new ParallelOptions { MaxDegreeOfParallelism = 12 }, (i) =>
+                 Parallel.ForEach(Enumerable.Range(0, 20), new ParallelOptions { MaxDegreeOfParallelism = 12 }, (i) =>
            {
+             
                // Restart the synchronous receive operation
                process();
-           })
+           }) 
                 );
-         
+         */
+
+            for (int i = 0; i < 10; i++)
+            {
+                Task.Factory.StartNew(() =>
+               process());
+                {
+                }
+
+            }
 
         }
 
@@ -70,7 +81,7 @@ namespace INA.Model
 
                 // Display message information.
                if (_databasemanagement.evaluateMessageLine(value))
-               // if (true)
+                //if (true)
                 {
                     // Commit the transaction.
                     //Console.WriteLine(value);
@@ -81,6 +92,7 @@ namespace INA.Model
                     // Abort the transaction.
                     queueTrans.Abort();
                 }
+               
             }
 
             catch (MessageQueueException e)

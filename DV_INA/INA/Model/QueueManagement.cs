@@ -51,29 +51,32 @@ namespace INA.Model
         }
 
         // send messages to queue
-        protected static void SendStringMessageToQueue(string transactions)
+        public static async Task<string> SendStringMessageToQueue(object transactions)
         {
+            await Task.Delay(0);
+
             MessageQueue msgQueue = GetStringMessageQueue();
 
-            using (var msmqTx = new MessageQueueTransaction())
-            {
+            string t = (string)transactions;
 
-
-                msmqTx.Begin();
-
-
-                msgQueue.Send(new Message(transactions)
-
+                using (var msmqTx = new MessageQueueTransaction())
                 {
-
-                    //BodyStream = new MemoryStream(bytes)
-
-                }, msmqTx);
+                    msmqTx.Begin();
 
 
-                msmqTx.Commit();
+                    msgQueue.Send(new Message(t)
 
-            }
+                    {
+                    }, msmqTx);
+
+
+                    msmqTx.Commit();
+
+                }
+
+                return "toll";
+       
+
         }
 
         protected static void SendStringMessageToQueueListe(List<string> transactions)

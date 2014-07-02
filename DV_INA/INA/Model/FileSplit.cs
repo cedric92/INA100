@@ -58,7 +58,8 @@ namespace INA.Model
         // import and check files
         public void readFile(string filePath)
         {
-            List<string> list = new List<string>();
+           // List<string> list = new List<string>();
+
 
             string fileName = Path.GetFileNameWithoutExtension(filePath);
             _Logfile.writeToFile("### Started to import file " + fileName+"###\n");
@@ -75,7 +76,10 @@ namespace INA.Model
 
                 using (var fileStream = File.OpenText(filePath))
                 {
-                    list.Add((new KeyValuePair<string, string>(fileName, "Header")).ToString());
+                   // list.Add((new KeyValuePair<string, string>(fileName, "Header")).ToString());
+
+                    schreibeInQueue((new KeyValuePair<string, string>(fileName, "Header")).ToString());
+                    //SendStringMessageToQueue((new KeyValuePair<string, string>(fileName, "Header").ToString()));
 
                     // save whole transactions, KeyValuePair simplifies access to key and value (acc-no + sum)
                     List<KeyValuePair<string, string>> transactionBlock = new List<KeyValuePair<string, string>>();
@@ -106,8 +110,21 @@ namespace INA.Model
                                     foreach (var t in transactionBlock)
                                     {
                                         count++;
+                                      //  SendStringMessageToQueue(t.ToString());
+
+                                        schreibeInQueue(t.ToString());
+
+
                                         // send string to lst
-                                        list.Add(t.ToString());
+                                     //  list.Add(t.ToString());
+                                        /*
+                                        Task.Factory.StartNew(() =>
+                                        {
+                                        
+                                        });
+                                         */
+                                      //System.Threading.ThreadPool.QueueUserWorkItem(new WaitCallback(SendStringMessageToQueue), t);
+
                                     }
                                     // clear transactionBlock
                                     transactionBlock.Clear();
@@ -118,9 +135,10 @@ namespace INA.Model
 
                     } while (!fileStream.EndOfStream);
 
-                    list.Add((new KeyValuePair<string, string>(fileName, "Footer " + count)).ToString());
-
-                    SendStringMessageToQueueListe(list);
+                   // list.Add((new KeyValuePair<string, string>(fileName, "Footer " + count)).ToString());
+                   //SendStringMessageToQueue((new KeyValuePair<string, string>(fileName, "Footer " + count)).ToString());
+                    schreibeInQueue((new KeyValuePair<string, string>(fileName, "Footer " + count)).ToString());
+                   //SendStringMessageToQueueListe(list);
 
                  // Stop timing
                  stopwatch.Stop();
@@ -139,6 +157,11 @@ namespace INA.Model
             }
 
     
+        }
+
+        private void schickmalindieQueue(object t)
+        {
+           Console.WriteLine("Schickmalindiequeue!!!");
         }
 
         //check if the entries in the list are valid. 
@@ -177,6 +200,11 @@ namespace INA.Model
         public void startTasks()
         {
             _MultiTasking.startTasks();
+        }
+
+        static async void schreibeInQueue(string m)
+        {
+            await SendStringMessageToQueue(m);
         }
 
         #endregion
