@@ -36,7 +36,7 @@ namespace WriteToDB
             {
                 Console.WriteLine("+++Start task timer +++");
                 w1.Start();
-                writetoDB(5000);
+                writetoDB(10000);
                 w1.Stop();
                 Console.WriteLine("+++Stop task timer1"+w1.Elapsed);
             });
@@ -45,7 +45,7 @@ namespace WriteToDB
             {
                 Console.WriteLine("+++Start task timer +++");
                 w2.Start();
-                writetoDB(5000);
+                writetoDB(10000);
                 w2.Stop();
                 Console.WriteLine("+++Stop task timer2" + w2.Elapsed);
             });
@@ -54,7 +54,8 @@ namespace WriteToDB
         private void writetoDB(int rounds)
         {
             this.rounds = rounds;
-            string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
+            string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True;Max Pool Size=200;Connect Timeout=1";
+            //string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
 
             SqlConnection messageConnection = new SqlConnection(conString);
             SqlCommand cmd = new SqlCommand();
