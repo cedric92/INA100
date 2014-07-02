@@ -15,7 +15,8 @@ namespace INA.Model
         LogFile _LogFile;
         ProgressBarControl _ProgressBarControl;
 
-        string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True;Max Pool Size=200;Connect Timeout=1";
+        string conString = @"Server=ADRIAN-PC\SQLEXPRESS;Database=INA;Trusted_Connection=True;Max Pool Size=200;Connect Timeout=1";
+       // string conString = @"Server=JANINE-NETBOOK\SQLEXPRESS;Database=INA;Trusted_Connection=True;Max Pool Size=200;Connect Timeout=1";
        // string conString = @"Server=CEDRIC\SQLEXPRESS;Database=dv projekt;Trusted_Connection=True; Connect Timeout=1;";
         // string conString = @"Server=WINJ5GTVAPSLQX\SQLEXPRESS;Database=INA;Trusted_Connection=True;";
 
